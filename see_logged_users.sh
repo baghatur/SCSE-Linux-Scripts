@@ -12,10 +12,11 @@ if ! grep -q $GROUP /etc/group; then
 fi
 
 USERS_SORTED=$(grep "$GROUP" /etc/group | sed 's/.*://;s/,/\n/g' | sort | uniq)
-LOGGED_SORTED=$(last | awk '{print $1}' | sort | uniq | sed '/^$/d')
+LOGGED_SORTED=$(last -w | awk '{print $1}' | sort | uniq | sed '/^$/d')
 
 echo "Users in group $GROUP that have never logged in"
-comm -23 <(echo "$USERS_SORTED" ) <(echo "$LOGGED_SORTED")
+comm -23 <(echo "$USERS_SORTED") <(echo "$LOGGED_SORTED")
+
 echo -e "\n------\n"
 
 echo "Users in group $GROUP last logged in"
