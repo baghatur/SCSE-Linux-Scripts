@@ -50,7 +50,7 @@ if [ -z $(getent group $GROUP) ]; then
     exit 1
 fi
 
-if ! [ -z $(id -u $GROUP &> /dev/null) ]; then
+if ! [ -z $(id -u $GROUP 2>/dev/null) ]; then
     echo "group $GROUP does not exist. It is a user name."
     exit 1
 fi
