@@ -61,17 +61,11 @@ LOGGED_SORTED=$(last -w | awk '{print $1}' | sort | uniq | sed '/^$/d')
 LONGEST_USERNAME=$(awk '{print length}' <(echo "$USERS_SORTED") | sort -nr | head -1)
 
 for USER in $(comm -23 <(echo "$USERS_SORTED" ) <(echo "$LOGGED_SORTED")); do
-    NEV="${NEV}\n$(
+    NEV="${NEV}$(
     awk '{
     printf("| %'$LONGEST_USERNAME'-s | --- -- --:-- | ------- |",$1)
-    }' <(echo $USER))"
+    }' <(echo $USER))\n"
 done
-
-if [ "$SHOW_NEVER_LOGGED" -eq "1" ]; then
-    NEV="| USERNAME            | LAST LOGGED  | DURATION|$NEV"
-    echo -e "$NEV"
-fi
-
 
 for USER in $(comm -12 <(echo "$USERS_SORTED" ) <(echo "$LOGGED_SORTED")); do
     LOG="${LOG}\n$(
@@ -81,7 +75,15 @@ for USER in $(comm -12 <(echo "$USERS_SORTED" ) <(echo "$LOGGED_SORTED")); do
     }')"
 done
 
+if [ "$SHOW_LOGGED" -eq "1" ] || [ "$SHOW_NEVER_LOGGED" -eq "1" ]; then
+    echo -e "| USERNAME            | LAST LOGGED  | DURATION|"
+fi
+   
 if [ "$SHOW_LOGGED" -eq "1" ]; then
-    LOG="| USERNAME            | LAST LOGGED  | DURATION|\n$(sort -k4Mr,4 -k5nr,5 <(echo -e "$LOG"))"
+    LOG="$(sort -k4Mr,4 -k5r,6 <(echo -e "$LOG"))"
     echo -e "$LOG"
+fi
+
+if [ "$SHOW_NEVER_LOGGED" -eq "1" ]; then
+    echo -e "$NEV"
 fi
