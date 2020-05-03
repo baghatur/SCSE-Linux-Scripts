@@ -9,7 +9,7 @@ function args()
 {
     options=$(getopt -o lng:f:t: --long logged --long never-logged --long group: --long from: --long to: -- "$@")
     [ $? -eq 0 ] || {
-        echo "Incorrect option provided"
+        echo "Incorrect option provided" >&2
         exit 1
     }
     eval set -- "$options"
@@ -45,17 +45,17 @@ function args()
 args $0 "$@"
 
 if [ -z ${GROUP+x} ]; then
-    echo "Group is not set."
+    echo "Group is not set." >&2
     exit 1
 fi
 
 if [ -z $(getent group $GROUP) ]; then
-    echo "group $GROUP does not exist."
+    echo "group $GROUP does not exist." >&2
     exit 1
 fi
 
 if ! [ -z $(id -u $GROUP 2>/dev/null) ]; then
-    echo "group $GROUP does not exist. It is a user name."
+    echo "group $GROUP does not exist. It is a user name." >&2
     exit 1
 fi
 

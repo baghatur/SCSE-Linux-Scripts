@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$UID" -ne 0 ]; then
-    echo "root priveledges required to run this script"
+    echo "root priveledges required to run this script" >&2
     exec  sudo "$0" "$@"
     exit 1
 fi
@@ -21,7 +21,7 @@ if ! [[ $INACTIVE_DAYS =~ $REGEX ]] ; then
 fi
 
 if [ -z $(getent group $GROUP) ]; then
-    echo "group $GROUP does not exist."
+    echo "group $GROUP does not exist." >&2
     exit 1
 fi
 
