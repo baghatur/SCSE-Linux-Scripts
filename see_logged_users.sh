@@ -2,10 +2,12 @@
 
 SHOW_LOGGED=0
 SHOW_NEVER_LOGGED=0
+LOG_STARTING=9999
+LOG_END=0
 
 function args()
 {
-    options=$(getopt -o lng: --long logged --long never-logged --long group: -- "$@")
+    options=$(getopt -o lng:f:t: --long logged --long never-logged --long group: --long from: --long to: -- "$@")
     [ $? -eq 0 ] || {
         echo "Incorrect option provided"
         exit 1
@@ -13,21 +15,23 @@ function args()
     eval set -- "$options"
     while true; do
         case "$1" in
-        -l)
-            ;&
-        --logged)
+        -l) ;& --logged)
             SHOW_LOGGED=1
             ;;
-        -n)
-            ;&
-        --never-logged)
+        -n) ;& --never-logged)
             SHOW_NEVER_LOGGED=1
             ;;
-	-g)
-	    ;&
-	--group)
+	-g) ;& --group)
 	    shift;
             GROUP=$1
+	    ;;
+	-f) ;& --from)
+	    shift;
+	    LOG_STARTING=$1
+	    ;;
+	-t) ;& --to)
+	    shift;
+	    LOG_END=$1
 	    ;;
 	--)
 	    shift
@@ -63,20 +67,20 @@ LONGEST_USERNAME=$(awk '{print length}' <(echo "$USERS_SORTED") | sort -nr | hea
 for USER in $(comm -23 <(echo "$USERS_SORTED" ) <(echo "$LOGGED_SORTED")); do
     NEV="${NEV}$(
     awk '{
-    printf("| %'$LONGEST_USERNAME'-s | --- -- --:-- | ------- |",$1)
+    printf("| %'$LONGEST_USERNAME'-s | --- -- --:--:-- |",$1)
     }' <(echo $USER))\n"
 done
-
+ 
 for USER in $(comm -12 <(echo "$USERS_SORTED" ) <(echo "$LOGGED_SORTED")); do
     LOG="${LOG}\n$(
-    last -w "$USER" | head -n 1 |
+    lastlog -u $USER -t $LOG_STARTING -b $LOG_END | tail -n -1 |
     awk '{
-    printf("| %'$LONGEST_USERNAME'-s | %3s %02d %s | %7-s |",$1, $5, $6, $7, $10)
+    printf("| %'$LONGEST_USERNAME'-s | %3s %02d %s |",$1, $5, $6, $7)
     }')"
 done
 
 if [ "$SHOW_LOGGED" -eq "1" ] || [ "$SHOW_NEVER_LOGGED" -eq "1" ]; then
-    echo -e "| USERNAME            | LAST LOGGED  | DURATION|"
+    echo -e "| USERNAME            | LAST LOGGED IN  |"
 fi
    
 if [ "$SHOW_LOGGED" -eq "1" ]; then
