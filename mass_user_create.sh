@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+if [ "$UID" -ne 0 ]; then
+    echo "root priveledges required to run this script"
+    exec  sudo "$0" "$@"
+    exit 1
+fi
+
 if [ "$#" -ne 3 ]; then
     printf "Too few arguments ($#), expected 3.\nUsage: $0 FILE DEFAULT_PWD GROUP\n" >&2
     exit 1
