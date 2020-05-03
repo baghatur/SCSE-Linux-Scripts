@@ -20,8 +20,13 @@ if [ ! -f "$FILE" ]; then
     exit 1
 fi
 
-if ! grep -q $GROUP /etc/group; then
-    echo "group $GROUP does not exist" >&2
+if [ -z $(getent group $GROUP) ]; then
+    echo "group $GROUP does not exist." >&2
+    exit 1
+fi
+
+if ! [ -z $(id -u $GROUP 2>/dev/null) ]; then
+    echo "group $GROUP does not exist. It is a user name." >&2
     exit 1
 fi
 
